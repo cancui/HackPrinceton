@@ -6,10 +6,30 @@
 #Note - Script will be uploaded to Azure and run in the web app.  Only the C++
 #and java files will be run locally
 
+#Main function
+def azureml_main(dataframe1 = None, dataframe2 = None):
+    # import required packages
+    import pandas as pd
+    import numpy as np
+    for text in dataframe1["Col2"]:
+        for word in tokens:
+            word_dict[word] = 1
+        # build sequence order for word corpus
+    for index, word in enumerate(word_dict.keys()):
+        word_dict[word] = index
+        # build feature vector for all records
+    feature_vector_list = []
+    for index, item in enumerate(token_list):
+        feature_vector = [0] * (len(word_dict) + 1)
+        for word in item:
+            feature_vector[word_dict[word]+1] = 1
+        feature_vector[0] = dataframe1["Col1"][index]
+        feature_vector_list.append(feature_vector)
+      # convert feature vector to dataframe object
+    dataframe_output = pd.DataFrame(np.array(feature_vector_list), columns=['rating']+word_dict.keys())
+    return [dataframe_output]
 
 
-import numpy as np
-import pandas
 
 #Global variable for the sampling rate in seconds
 sampleRate = 0.05
@@ -95,7 +115,7 @@ def rowSeparation(dataFile):
     '''
     #List of the row indexes of null rows, used to separate two different
     #gestures
-    nullRows = []
+    nullRows = [-1]
     #Last column is reserved for the word that is being signed
     count = 0
     for word in dataFile["Col23"]:
@@ -103,6 +123,3 @@ def rowSeparation(dataFile):
             nullRows.append(count)
         count+=1
     return nullRows
-
-            
-    
