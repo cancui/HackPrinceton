@@ -10,29 +10,33 @@
 def azureml_main(dataframe1 = None, dataframe2 = None):
     # import required packages
     import pandas as pd
-    import numpy as np
-    for text in dataframe1["Col2"]:
-        for word in tokens:
-            word_dict[word] = 1
-        # build sequence order for word corpus
-    for index, word in enumerate(word_dict.keys()):
-        word_dict[word] = index
-        # build feature vector for all records
-    feature_vector_list = []
-    for index, item in enumerate(token_list):
-        feature_vector = [0] * (len(word_dict) + 1)
-        for word in item:
-            feature_vector[word_dict[word]+1] = 1
-        feature_vector[0] = dataframe1["Col1"][index]
-        feature_vector_list.append(feature_vector)
-      # convert feature vector to dataframe object
-    dataframe_output = pd.DataFrame(np.array(feature_vector_list), columns=['rating']+word_dict.keys())
-    return [dataframe_output]
+    
+    columnLabel = ['E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E6', 'E7', 'E8', 'A1', 'A2', 'A3', 'Word']
+    df = dataframe1
+    df.columns = columnLabel
+    
+    rowSep = rowSeparation(df)
+    
+    Dict = {}
+    for row in range(0,len(rowSep)-1):
+        rowTemp = []
+        for col in xrange(11):
+            #Creates a temp list out of the column vector
+            tempList = (df.iloc[(rowSep[row]+1):rowSep[row+1],col]).tolist()
+            rowTemp.append(callFeatures(tempList))
+        #Add the word being gestured as the last column entry
+        
+        rowTemp.append((df.iloc[(rowSep[row]+1):(rowSep[row]+2),11]).tolist())
+        dictEntry = 'row' + str(row)
+        Dict[dictEntry] = rowTemp
+    
+    output = pd.DataFrame(Dict)
+    return [output]
 
-
+import numpy as np
 
 #Global variable for the sampling rate in seconds
-sampleRate = 0.05
+sampleRate = 0.04
 
 
 def avAbsDiff (columnVector):
@@ -103,7 +107,7 @@ def callFeatures (columnVector):
         results.append(num)
     return results
 
-#Note may need to update this function if there are more or less than 22 
+#Note may need to update this function if there are more or less than 11 
 #channels of myo data combined between the two myos
 def rowSeparation(dataFile):
     '''
@@ -118,7 +122,7 @@ def rowSeparation(dataFile):
     nullRows = [-1]
     #Last column is reserved for the word that is being signed
     count = 0
-    for word in dataFile["Col23"]:
+    for word in dataFile["Word"]:
         if word == 'NULL':
             nullRows.append(count)
         count+=1
