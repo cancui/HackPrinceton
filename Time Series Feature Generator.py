@@ -10,7 +10,6 @@
 
 import numpy as np
 import pandas
-import math
 
 #Global variable for the sampling rate in seconds
 sampleRate = 0.05
@@ -35,7 +34,7 @@ def startingPoint (columnVector):
     0.4 seconds, using the sampleRate global variable to determine how many
     entries should be sampled
     '''
-    numSamples = 0.4/sampleRate
+    numSamples = int(0.4/sampleRate)
     startingList = columnVector[:numSamples]
     return np.mean(startingList)
 
@@ -47,7 +46,7 @@ def endingPoint (columnVector):
     0.4 seconds, using the sampleRate global variable to determine how many
     entries should be sampled
     '''
-    numSamples = 0.4/sampleRate
+    numSamples = int(0.4/sampleRate)
     endingList = columnVector[-numSamples:]
     return np.mean(endingList)
 
@@ -64,3 +63,46 @@ def binDist (columnVector):
     rawOutput = np.histogram(columnVector)
     return rawOutput[0]
 
+
+def callFeatures (columnVector):
+    '''
+    Calls all feature generating functions, both built in, and coded above.
+    Returns the results as a list with features listed in this order:
+    average, median, standard deviation, average absolute difference, starting
+    point, ending point, and then an array of the binned distribution data
+    '''
+    results = []
+    results.append(np.mean(columnVector))
+    results.append(np.median(columnVector))
+    results.append(np.std(columnVector))
+    results.append(avAbsDiff(columnVector))
+    #results.append(startingPoint(columnVector))
+    #results.append(endingPoint(columnVector))
+    distList = binDist(columnVector)
+    for num in distList:
+        results.append(num)
+    return results
+
+#Note may need to update this function if there are more or less than 22 
+#channels of myo data combined between the two myos
+def rowSeparation(dataFile):
+    '''
+    dataFile should be a pandas dataFrame
+    Pass the overall file dataFile in, parse the rightmost column that contains the 
+    words being signed, looking for a 'NULL' string signifying the separation
+    between two different word gestures.  Returns a list of all of the row
+    indexes for which this is true to aid in parsing the dataframe file.
+    '''
+    #List of the row indexes of null rows, used to separate two different
+    #gestures
+    nullRows = []
+    #Last column is reserved for the word that is being signed
+    count = 0
+    for word in dataFile["Col23"]:
+        if word == 'NULL':
+            nullRows.append(count)
+        count+=1
+    return nullRows
+
+            
+    
