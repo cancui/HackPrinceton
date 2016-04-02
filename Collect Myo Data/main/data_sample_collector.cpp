@@ -26,10 +26,11 @@
 
 using namespace std;
 
+ofstream fout1("global_output.txt");
+
 class DataCollector : public myo::DeviceListener {
 public:
     DataCollector() : emgSamples(), onArm(false), isUnlocked(false), roll_w(0), pitch_w(0), yaw_w(0), currentPose() {}
-
 
 	void onPair(myo::Myo* myo, uint64_t timestamp, myo::FirmwareVersion firmwareVersion)
 	{
@@ -71,7 +72,20 @@ public:
     void onEmgData(myo::Myo* myo, uint64_t timestamp, const int8_t* emg) { //called whenever paired Myo has provided new EMG data, and EMG streaming is enabled
         for (int i = 0; i < 8; i++) {
             emgSamples[i] = emg[i];
+			//cout << '[' << static_cast<int>(emgSamples[i]) << ']';
         }
+
+		for (size_t i = 0; i < emgSamples.size(); i++) { // Print out the EMG data.
+			ostringstream oss;
+			oss << static_cast<int>(emgSamples[i]);
+			string emgString = oss.str();
+
+			fout1 << emgString << ", ";
+		}
+
+		fout1 << roll_w << ", " << pitch_w << ", " << yaw_w << ", ";
+		fout1 << '[' << (whichArm == myo::armLeft ? "L" : "R") << "], ";
+		fout1 << "r ";
     }
 
 	// onOrientationData() is called whenever the Myo device provides its current orientation, which is represented
@@ -232,7 +246,7 @@ void csv_output(ofstream & fout, DataCollector& collector) {
 	
 	fout << collector.roll_w << ", " << collector.pitch_w << ", " << collector.yaw_w << ", ";
 	fout << '[' << (collector.whichArm == myo::armLeft ? "L" : "R") << "], ";
-	fout << "r, ";
+	fout << "r ";
 
 	//fout << endl;
 }
@@ -311,14 +325,15 @@ try {
 	
 	//cout << iter << " " << size; */
 
-	myo::Myo* myo1 = collector3.listOfMyos[0];
-	myo::Myo* myo2 = collector3.listOfMyos[1];
+	/*collector3.listOfMyos[0];
+	collector3.listOfMyos[1];*/
 
-	if (!myo1 || !myo2) {
+	if (!collector3.listOfMyos[0] || !collector3.listOfMyos[1]) {
 		//throw runtime_error("One of the Myo pointers is null!");
 		cout << "One of the Myo pointers is null!";
 	}
 
+	//(collector3.listOfMyos[1])->setStreamEmg(myo::Myo::streamEmgEnabled);
 
 	// Finally we enter our main loop.
     while (true) {
@@ -333,19 +348,26 @@ try {
 		*/
 
 		hub.run(1000/20);
+		
+		
 
 		/*
-		hub.run(1000 / 20);
-		myo1->setStreamEmg(myo::Myo::streamEmgEnabled);
-		collector3.print();
-		csv_output(fout, collector3);
-		myo1->setStreamEmg(myo::Myo::streamEmgDisabled);
+		//(collector3.listOfMyos[1])->vibrate(myo::Myo::vibrationShort);
+		(collector3.listOfMyos[1])->setStreamEmg(myo::Myo::streamEmgEnabled);
+		//collector3.print();
+		//csv_output(fout, collector3);
+		
+		
+		(collector3.listOfMyos[1])->setStreamEmg(myo::Myo::streamEmgDisabled);
 
+		
 		hub.run(1000 / 20);
-		myo2->setStreamEmg(myo::Myo::streamEmgEnabled);
-		collector3.print();
-		csv_output(fout, collector3);
-		myo2->setStreamEmg(myo::Myo::streamEmgDisabled);*/
+		(collector3.listOfMyos[1])->setStreamEmg(myo::Myo::streamEmgEnabled);
+		//collector3.print();
+		//csv_output(fout, collector3);
+		
+		(collector3.listOfMyos[1])->setStreamEmg(myo::Myo::streamEmgDisabled);
+		*/
     }
 
 } catch (const exception& e) {
