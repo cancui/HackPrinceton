@@ -1,0 +1,55 @@
+Skip to content
+Personal Open source Business Explore
+Sign upSign inPricingBlogSupport
+This repository
+Search
+ Watch 1  Star 1  Fork 0 nk773/AzureML_RRSApp
+ Code  Issues 0  Pull requests 0  Pulse  Graphs
+Branch: master Find file Copy pathAzureML_RRSApp/src/azureml_rrsapp/rrsJson.json
+90a72c2  on 20 Feb
+@nk773 nk773 No commit message
+1 contributor
+RawBlameHistory    42 lines (41 sloc)  723 Bytes
+{
+  "Inputs": {
+    "input1": {
+      "ColumnNames": [
+        "age",
+        "workclass",
+        "fnlwgt",
+        "education-num",
+        "marital-status",
+        "occupation",
+        "relationship",
+        "race",
+        "sex",
+        "capital-gain",
+        "capital-loss",
+        "hours-per-week",
+        "native-country",
+        "income"
+      ],
+      "Values": [
+        [
+          "0",
+          "Federal-gov",
+          "0",
+          "0",
+          "Divorced",
+          "Adm-clerical",
+          "Husband",
+          "Amer-Indian-Eskimo",
+          "Female",
+          "0",
+          "0",
+          "0",
+          "Cambodia",
+          "value"
+        ]
+      ]
+    }
+  },
+  "GlobalParameters": {}
+}
+Status API Training Shop Blog About
+© 2016 GitHub, Inc. Terms Privacy Security Contact Help

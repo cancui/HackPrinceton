@@ -1,0 +1,41 @@
+{
+  "Inputs": {
+    "input1": {
+      "ColumnNames": [
+        "age",
+        "workclass",
+        "fnlwgt",
+        "education",
+        "education-num",
+        "marital-status",
+        "occupation",
+        "relationship",
+        "race",
+        "sex",
+        "capital-gain",
+        "capital-loss",
+        "hours-per-week",
+        "native-country",
+      ],
+      "Values": [
+        [
+          "0",
+          "Federal-gov",
+          "0",
+          "Princeton",
+          "0",
+          "Divorced",
+          "Adm-clerical",
+          "Husband",
+          "Amer-Indian-Eskimo",
+          "Female",
+          "0",
+          "0",
+          "0",
+          "Cambodia",
+        ]
+      ]
+    }
+  },
+  "GlobalParameters": {}
+}
