@@ -159,7 +159,7 @@ void csv_output(ofstream & fout, DataCollector& collector, string gesture_name) 
 		fout << emgString << ", ";
 	}
 	
-	fout << collector.roll_w << ", " << collector.pitch_w << ", " << collector.yaw_w << ", SPACE, " << gesture_name << endl;
+	fout << collector.roll_w << ", " << collector.pitch_w << ", " << collector.yaw_w << ", " << gesture_name << " " << endl;
 	/*
 	fout << '[' << (collector.whichArm == myo::armLeft ? "L" : "R") << "], ";
 	fout << "r ";
@@ -215,6 +215,7 @@ try {
 		counter++;
     }
 
+	fout << "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, SPACE" << endl;
 	cout << endl << "Recording ended. Data stored in " << output_name;
 	fout.close();
 	cin.ignore();

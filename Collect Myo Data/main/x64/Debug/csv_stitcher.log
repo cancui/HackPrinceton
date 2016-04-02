@@ -1,0 +1,14 @@
+﻿Build started 2016-04-02 6:10:27 PM.
+     1>Project "C:\Users\Can\Documents\HackPrinceton\Collect Myo Data\main\csv_stitcher.vcxproj" on node 2 (Build target(s)).
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppBuild.targets(392,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (emg-data-sample-VisualStudio2012.vcxproj, emg-data-sample-VisualStudio2013.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"x64\Debug\\" /Fd"x64\Debug\vc140.pdb" /Gd /TP /errorReport:prompt csv_stitcher.cpp
+         csv_stitcher.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Can\Documents\HackPrinceton\Collect Myo Data\main\x64\Debug\csv_stitcher.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Users\Can\Documents\HackPrinceton\Collect Myo Data\main\x64\Debug\csv_stitcher.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Can\Documents\HackPrinceton\Collect Myo Data\main\x64\Debug\csv_stitcher.lib" /MACHINE:X64 x64\Debug\csv_stitcher.obj
+         csv_stitcher.vcxproj -> C:\Users\Can\Documents\HackPrinceton\Collect Myo Data\main\x64\Debug\csv_stitcher.exe
+     1>Done Building Project "C:\Users\Can\Documents\HackPrinceton\Collect Myo Data\main\csv_stitcher.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.13
