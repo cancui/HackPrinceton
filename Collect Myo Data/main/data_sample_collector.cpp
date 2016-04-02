@@ -31,7 +31,7 @@ ofstream fout1("global_output.txt");
 class DataCollector : public myo::DeviceListener {
 public:
     DataCollector() : emgSamples(), onArm(false), isUnlocked(false), roll_w(0), pitch_w(0), yaw_w(0), currentPose() {}
-
+	/*
 	void onPair(myo::Myo* myo, uint64_t timestamp, myo::FirmwareVersion firmwareVersion)
 	{
 		// Print out the MAC address of the armband we paired with.
@@ -57,7 +57,7 @@ public:
 		else {
 			cout << "LIST INDEX ERROR, value: " << listIndex;
 		}
-	}
+	}*/
 
 
     void onUnpair(myo::Myo* myo, uint64_t timestamp) { //called when Myo is disconnected from Myo Connect by user
@@ -75,17 +75,17 @@ public:
 			//cout << '[' << static_cast<int>(emgSamples[i]) << ']';
         }
 
-		for (size_t i = 0; i < emgSamples.size(); i++) { // Print out the EMG data.
-			ostringstream oss;
-			oss << static_cast<int>(emgSamples[i]);
-			string emgString = oss.str();
+		//for (size_t i = 0; i < emgSamples.size(); i++) { // Print out the EMG data.
+		//	ostringstream oss;
+		//	oss << static_cast<int>(emgSamples[i]);
+		//	string emgString = oss.str();
 
-			fout1 << emgString << ", ";
-		}
+		//	fout1 << emgString << ", ";
+		//}
 
-		fout1 << roll_w << ", " << pitch_w << ", " << yaw_w << ", ";
-		fout1 << '[' << (whichArm == myo::armLeft ? "L" : "R") << "], ";
-		fout1 << "r ";
+		//fout1 << roll_w << ", " << pitch_w << ", " << yaw_w << ", ";
+		//fout1 << '[' << (whichArm == myo::armLeft ? "L" : "R") << "], ";
+		//fout1 << "r ";
     }
 
 	// onOrientationData() is called whenever the Myo device provides its current orientation, which is represented
@@ -152,7 +152,7 @@ public:
 	void onLock(myo::Myo* myo, uint64_t timestamp) {
 		isUnlocked = false;
 	}
-
+/*
 	void onConnect(myo::Myo* myo, uint64_t timestamp, myo::FirmwareVersion firmwareVersion) {
 		std::cout << "Myo " << identifyMyo(myo) << " has connected." << std::endl;
 	}
@@ -160,7 +160,7 @@ public:
 	void onDisconnect(myo::Myo* myo, uint64_t timestamp) {
 		std::cout << "Myo " << identifyMyo(myo) << " has disconnected." << std::endl;
 	}
-
+*/
     // There are other virtual functions in DeviceListener that we could override here, like onAccelerometerData(). For this example, the functions overridden above are sufficient.
 
     void print() { //prints the current values that were updated by the on...() functions above
@@ -198,18 +198,18 @@ public:
     
 	// This is a utility function implemented for this sample that maps a myo::Myo* to a unique ID starting at 1.
 	// It does so by looking for the Myo pointer in knownMyos, which onPair() adds each Myo into as it is paired.
-	
-	size_t identifyMyo(myo::Myo* myo) {
-		// Walk through the list of Myo devices that we've seen pairing events for.
-		for (size_t i = 0; i < knownMyos.size(); ++i) {
-			// If two Myo pointers compare equal, they refer to the same Myo device.
-			if (knownMyos[i] == myo) {
-				return i + 1;
-			}
-		}
+	//
+	//size_t identifyMyo(myo::Myo* myo) {
+	//	// Walk through the list of Myo devices that we've seen pairing events for.
+	//	for (size_t i = 0; i < knownMyos.size(); ++i) {
+	//		// If two Myo pointers compare equal, they refer to the same Myo device.
+	//		if (knownMyos[i] == myo) {
+	//			return i + 1;
+	//		}
+	//	}
 
-		return 0;
-	}
+	//	return 0;
+	//}
 
     array<int8_t, 8> emgSamples; // The values of this array are set by onEmgData() above
 
@@ -219,9 +219,9 @@ public:
 	int roll_w, pitch_w, yaw_w;
 	myo::Pose currentPose;
 
-	vector<myo::Myo*> knownMyos;
+	/*vector<myo::Myo*> knownMyos;
 	myo::Myo* listOfMyos[2];
-	int listIndex = 0;
+	int listIndex = 0;*/
 };
 
 void printToFile(ofstream & fout, array<int8_t, 8> emgSamples) {
@@ -247,8 +247,7 @@ void csv_output(ofstream & fout, DataCollector& collector) {
 	fout << collector.roll_w << ", " << collector.pitch_w << ", " << collector.yaw_w << ", ";
 	fout << '[' << (collector.whichArm == myo::armLeft ? "L" : "R") << "], ";
 	fout << "r ";
-
-	//fout << endl;
+	fout << endl;
 }
 
 int main(int argc, char** argv) {
@@ -256,7 +255,7 @@ try {
     myo::Hub hub("com.example.emg-data-sample");
     cout << "Attempting to find a Myo..." << endl;
 
-	/*
+	
 	//MYO 1 ///////////////////////////////////////////
     myo::Myo* myo1 = hub.waitForMyo(10000);
     if (!myo1) { //check if failed
@@ -265,31 +264,20 @@ try {
 
     cout << "Connected to a Myo armband (1) !" << endl << endl;
     myo1->setStreamEmg(myo::Myo::streamEmgEnabled); //enable EMG streaming
+	myo1->setStreamEmg(myo::Myo::streamEmgDisabled);
+	myo1->setStreamEmg(myo::Myo::streamEmgEnabled);
 
     DataCollector collector1; //construct device listener, to be registered with Hub
 
-	//MYO 2 //////////////////////////////////////////
-	myo::Myo* myo2 = hub.waitForMyo(10000);
-	if (!myo2) { //check if failed
-		throw runtime_error("Unable to find a Myo 2!");
-	}
-
-	cout << "Connected to a Myo armband (2) ! " << endl << endl;
-	myo2->setStreamEmg(myo::Myo::streamEmgEnabled); //enable EMG streaming
-
-	DataCollector collector2; //construct device listener, to be registered with Hub
-
-	//////////////////////////////////////////////////
-	
 
     // Hub::addListener() takes the address of any object whose class inherits from DeviceListener, and will cause
     // Hub::run() to send events to all registered device listeners.
     hub.addListener(&collector1);
-	hub.addListener(&collector2);
-	*/
+	
 
+	/*
 	DataCollector collector3;
-	hub.addListener(&collector3);
+	hub.addListener(&collector3);*/
 	
 	ifstream fin("output_count.txt");
 	if (!fin) {
@@ -328,26 +316,23 @@ try {
 	/*collector3.listOfMyos[0];
 	collector3.listOfMyos[1];*/
 
-	if (!collector3.listOfMyos[0] || !collector3.listOfMyos[1]) {
-		//throw runtime_error("One of the Myo pointers is null!");
-		cout << "One of the Myo pointers is null!";
-	}
+	//if (!collector3.listOfMyos[0] || !collector3.listOfMyos[1]) {
+	//	//throw runtime_error("One of the Myo pointers is null!");
+	//	cout << "One of the Myo pointers is null!";
+	//}
 
 	//(collector3.listOfMyos[1])->setStreamEmg(myo::Myo::streamEmgEnabled);
 
 	// Finally we enter our main loop.
     while (true) {
-        /*
+        
 		hub.run(1000/20); 
         collector1.print();
-		collector2.print();
 		//printToFile(fout, collector1.emgSamples);
 		csv_output(fout, collector1);
-		csv_output(fout, collector2);
-		fout << endl;
-		*/
+		
 
-		hub.run(1000/20);
+		//hub.run(1000/20);
 		
 		
 
