@@ -11,7 +11,7 @@ def azureml_main(dataframe1 = None, dataframe2 = None):
     # import required packages
     import pandas as pd
     
-    columnLabel = ['E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E6', 'E7', 'E8', 'A1', 'A2', 'A3', 'Word']
+    columnLabel = ['E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'A1', 'A2', 'A3', 'Word']
     df = dataframe1
     df.columns = columnLabel
     
@@ -27,8 +27,9 @@ def azureml_main(dataframe1 = None, dataframe2 = None):
         #Add the word being gestured as the last column entry
         
         rowTemp.append((df.iloc[(rowSep[row]+1):(rowSep[row]+2),11]).tolist())
-        dictEntry = 'row' + str(row)
-        Dict[dictEntry] = rowTemp
+        dictNum = '0' + str(row)
+        DictNum = dictNum[-2:]        
+        Dict['row ' + DictNum] = rowTemp
     
     output = pd.DataFrame(Dict)
     return [output]
@@ -127,3 +128,19 @@ def rowSeparation(dataFile):
             nullRows.append(count)
         count+=1
     return nullRows
+    
+
+import csv
+import string
+import pandas as pd
+
+with open("/Users/jeremymalloch/Desktop/myo_output1.csv", "r") as f:
+    data1 = [row for row in csv.reader(f)]
+    TestInput = {}
+    for x in range(11):
+        stringNum = '0' + str(x)
+        StringNum = stringNum[-2:]
+        TestInput['row ' + StringNum] = [float(row[x]) for row in data1]
+    #TestInput['Word'] = [string(row[11]) for row in data1]
+    TstFile = pd.DataFrame(TestInput)
+    
