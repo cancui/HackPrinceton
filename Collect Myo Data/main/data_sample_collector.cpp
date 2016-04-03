@@ -212,7 +212,8 @@ try {
 	EMG_Sensor sensors[8];
 	int counter = 0;
     while (counter < 100) {
-		myo1->unlock(myo::Myo::unlockHold);
+		//myo1->unlock(myo::Myo::unlockHold);
+		myo1->lock();
 		hub.run(1000/25); 
         collector1.print();
 		cout << "\r" << endl << counter;
