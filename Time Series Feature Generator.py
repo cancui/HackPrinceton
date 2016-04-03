@@ -10,7 +10,7 @@
 def azureml_main(dataframe1 = None, dataframe2 = None):
     # import required packages
     import pandas as pd
-    from sklearn import preprocessing
+    import numpy as np
        
     #Rename dataframe1 as df to shorten multiple calls to it
     #in this function
@@ -35,10 +35,22 @@ def azureml_main(dataframe1 = None, dataframe2 = None):
         DictNum = dictNum[-2:]        
         Dict['row ' + DictNum] = rowTemp
     
-    output = pd.DataFrame(Dict)
+    outputPD = pd.DataFrame(Dict)
+    
+    #Convert to a numpy array in order to take the transpose
+    outputNP = outputPD.as_matrix()
+    outputNPT = np.transpose(outputNP)
+    #Populate a list with strings labeling the columns
+    columnList = []
+    for x in range(numChannels):
+        stringNum = '0' + str(x)
+        StringNum = stringNum[-2:]
+        columnList.append('Row ' + StringNum)
+    columnList.append('Word')
+    outputPD = pd.DataFrame(outputNPT)
     #Perform a transpose to make the data from each gesture a row
     #output.transpose()
-    return [output]
+    return [outputPD]
     
 import numpy as np
 
