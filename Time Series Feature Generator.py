@@ -43,8 +43,8 @@ def azureml_main(dataframe1 = None, dataframe2 = None):
     #Populate a list with strings labeling the columns
     columnList = []
     for x in range(numChannels*16):
-        stringNum = '0' + str(x)
-        StringNum = stringNum[-2:]
+        stringNum = '00' + str(x)
+        StringNum = stringNum[-3:]
         columnList.append('Row ' + StringNum)
     columnList.append('Word')
     outputPD = pd.DataFrame(outputNPT)
