@@ -10,27 +10,34 @@
 def azureml_main(dataframe1 = None, dataframe2 = None):
     # import required packages
     import pandas as pd
-        
-    #List of the 
+    import numpy as np
+       
+    #Rename dataframe1 as df to shorten multiple calls to it
+    #in this function
+    df = dataframe1 
+    #List of the rows containing the SPACE indicator for nullity
     rowSep = rowSeparation(df)
         
     Dict = {}
     for row in range(0,len(rowSep)-1):
         rowTemp = []
-        for col in xrange(11):
+        for col in xrange(numChannels):
             #Creates a temp list out of the column vector
             rowStart = rowSep[row]+1
             rowEnd = rowSep[row+1]
             tempList = (df.iloc[rowStart:rowEnd,col]).tolist()
-            rowTemp.append(callFeatures(tempList))
+            FeaturesList = callFeatures(tempList)
+            for x in FeaturesList:
+                rowTemp.append(x)
         #Add the word being gestured as the last column entry
-        rowTemp.append((df.iloc[(rowSep[row]+1):(rowSep[row]+2),11]).tolist())
+        rowTemp.append((df.iloc[(rowSep[row]+1):(rowSep[row]+2),numChannels]).tolist()[0])
         dictNum = '0' + str(row)
         DictNum = dictNum[-2:]        
         Dict['row ' + DictNum] = rowTemp
     
     output = pd.DataFrame(Dict)
-    #output.columns = columnLabel
+    #Perform a transpose to make the data from each gesture a row
+    #output.transpose()
     return [output]
     
 import numpy as np
@@ -104,8 +111,8 @@ def callFeatures (columnVector):
     results.append(np.median(columnVector))
     results.append(np.std(columnVector))
     results.append(avAbsDiff(columnVector))
-    #results.append(startingPoint(columnVector))
-    #results.append(endingPoint(columnVector))
+    results.append(startingPoint(columnVector))
+    results.append(endingPoint(columnVector))
     distList = binDist(columnVector)
     for num in distList:
         results.append(num)
@@ -126,7 +133,7 @@ def rowSeparation(dataFile):
     nullRows = [-1]
     #Last column is reserved for the word that is being signed
     count = 0
-    LstWords = (dataFile.iloc[:,11]).tolist()
+    LstWords = (dataFile.iloc[:,numChannels]).tolist()
     for word in LstWords:
         if word == 'SPACE':
             nullRows.append(count)
@@ -145,7 +152,7 @@ with open("/Users/jeremymalloch/Desktop/Myo_OutputBasic.csv", "r") as f:
         stringNum = '0' + str(x)
         StringNum = stringNum[-2:]
         TestInput['Row ' + StringNum] = [float(row[x]) for row in data1]
-    TestInput['_Word'] = [row[11] for row in data1]
+    TestInput['_Word'] = [row[numChannels] for row in data1]
     TstFile = pd.DataFrame(TestInput)
 
 output = azureml_main(dataframe1 = TstFile)
