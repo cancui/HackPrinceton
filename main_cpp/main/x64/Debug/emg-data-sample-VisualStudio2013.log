@@ -1,4 +1,4 @@
-﻿Build started 2016-04-03 3:43:07 AM.
+﻿Build started 2016-04-03 8:39:27 AM.
      1>Project "C:\Users\Can\Documents\HackPrinceton\main_cpp\main\emg-data-sample-VisualStudio2013.vcxproj" on node 2 (Build target(s)).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppBuild.targets(392,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (csv_stitcher.vcxproj, emg-data-sample-VisualStudio2012.vcxproj, emg-data-sample-VisualStudio2013.vcxproj).  This can lead to incorrect clean and rebuild behavior.
      1>ClCompile:
@@ -22,4 +22,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.18
+Time Elapsed 00:00:01.82

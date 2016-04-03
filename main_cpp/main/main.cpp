@@ -28,6 +28,7 @@
 #include <myo/myo.hpp>
 #include "EMG_filtering.h"
 #include "Data.h"
+#include <windows.h>
 
 using namespace std;
 
@@ -198,7 +199,7 @@ void csv_output2(DataCollector& collector, EMG_Sensor* sensors, ofstream & fout_
 }
 
 
-int main(int argc, char** argv) {
+int main() {
 try {
     myo::Hub hub("com.example.emg-data-sample");
     cout << "Attempting to find a Myo..." << endl;
@@ -209,24 +210,27 @@ try {
     DataCollector collector1;
     hub.addListener(&collector1);
 
-	ofstream fout("Trigger.txt");
-	if (!fout) { throw runtime_error("Failed to create output text file!"); }
-	
+	string name = "src\\input.csv";
+	ofstream fout2; // (name);
+		if (!fout2) { throw runtime_error("Failed to create filtered output text file!"); }
+		ofstream fout; // ("src\\trigger.txt");
+		if (!fout) { throw runtime_error("Failed to create output text file!"); }
+
 	EMG_Sensor sensors[8];
 
 	int counter_trigger = 0;
 
     while (true) {
-		myo1->vibrate(myo::Myo::vibrationShort);
+		//myo1->vibrate(myo::Myo::vibrationShort);
 		//string name = "Data" + to_string(counter_trigger) + ".csv";
-		string name = "Data.csv";
-		ofstream fout2(name);
-		if (!fout2) { throw runtime_error("Failed to create filtered output text file!"); }
-
+		
+		fout2.open("C:\\Users\\Can\\Eclipse Workspace\\Squadcaller\\src\\input.csv");
+		fout.open("C:\\Users\\Can\\Eclipse Workspace\\Squadcaller\\src\\trigger.txt");
+		
 		myo1->unlock(myo::Myo::unlockHold);
 		hub.run(1000/25); 
 
-		int cur_pitch = collector1.pitch_w;
+		/*int cur_pitch = collector1.pitch_w;
 		int cur_yaw = collector1.yaw_w;
 		int cur_roll = collector1.roll_w;
 
@@ -234,26 +238,30 @@ try {
 			&& (abs(collector1.yaw_w - cur_yaw) < 2 || abs(collector1.yaw_w - cur_yaw) > 16)
 			&& (abs(collector1.roll_w - cur_roll) < 1 || abs(collector1.roll_w - cur_roll) > 17)) {
 			hub.run(1000 / 25);
-		}
+		}*/
+
+		cout << "Enter any value to begin";
+		string waiting;
+		cin >> waiting;
+		cout << "Starting." << endl;
 
 		for (int i = 0; i < 100; i++) {
+			cout << '\r' << endl << (100 - i) * 40;
 			hub.run(1000 / 25);
 			csv_output2(collector1, sensors, fout2);
+			cout << flush;
 		}
 
 		fout2 << "0,0,0,0,0,0,0,0,0,0,0,0,0,0,SPACE" << endl;
 		fout2.close();
+		cout << "hit" << endl;
 		counter_trigger++;
-		cout << to_string(counter_trigger);
 		fout << to_string(counter_trigger);
-
+		cout << "hit" << endl;
+		fout.close();
+		cout << to_string(counter_trigger);
+		Sleep(500);
     }
-
-	fout.close();
-	
-	string ender;
-	cin >> ender;
-
 } catch (const exception& e) {
         cerr << "Error: " << e.what() << endl;
         cerr << "Press enter to continue.";

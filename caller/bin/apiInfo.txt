@@ -1,0 +1,2 @@
+https://ussouthcentral.services.azureml.net/workspaces/8d8b7446d5064b1a9b050e2b242d7b46/services/cdda642903c247a1ab71dd43672c1d3b/execute?api-version=2.0&details=true
+pQ/pFHmPibUc+lsCsRzf6d10kVwVgEd/OZmvvi92WUcIaUPSRUo4JGQSZHWgKmblrDSajeBy/U5lDuThqSWTCA==
