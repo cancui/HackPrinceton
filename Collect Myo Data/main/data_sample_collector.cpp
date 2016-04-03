@@ -1,5 +1,4 @@
-// Copyright (C) 2013-2014 Thalmic Labs Inc.
-// Distributed under the Myo SDK license agreement. See LICENSE.txt for details.
+// Created using the Myo SDK from Thalmic Labs Inc. 
 
 #define _USE_MATH_DEFINES 
 
@@ -30,8 +29,10 @@ class DataCollector : public myo::DeviceListener {
 public:
     DataCollector() : emgSamples(), onArm(false), isUnlocked(false), roll_w(0), pitch_w(0), yaw_w(0), currentPose() {}
 	
-    void onUnpair(myo::Myo* myo, uint64_t timestamp) { //called when Myo is disconnected from Myo Connect by user
-        emgSamples.fill(0); //clean up leftover state
+	//functions with "on" prefix are called upon their respective events
+
+    void onUnpair(myo::Myo* myo, uint64_t timestamp) { 
+        emgSamples.fill(0); //clean up 
 		roll_w = 0;
 		pitch_w = 0;
 		yaw_w = 0;
@@ -39,10 +40,9 @@ public:
 		isUnlocked = false;
     }
 
-    void onEmgData(myo::Myo* myo, uint64_t timestamp, const int8_t* emg) { //called whenever paired Myo has provided new EMG data, and EMG streaming is enabled
+    void onEmgData(myo::Myo* myo, uint64_t timestamp, const int8_t* emg) { //EMG streaming must be enabled
         for (int i = 0; i < 8; i++) {
             emgSamples[i] = emg[i];
-			//cout << '[' << static_cast<int>(emgSamples[i]) << ']';
         }
     }
 
@@ -53,14 +53,14 @@ public:
 		using std::max;
 		using std::min;
 
-		// Calculate Euler angles (roll, pitch, and yaw) from the unit quaternion.
+		// Calculate Euler angles (roll, pitch, and yaw) from the unit quaternion
 		float roll = atan2(2.0f * (quat.w() * quat.x() + quat.y() * quat.z()),
 			1.0f - 2.0f * (quat.x() * quat.x() + quat.y() * quat.y()));
 		float pitch = asin(max(-1.0f, min(1.0f, 2.0f * (quat.w() * quat.y() - quat.z() * quat.x()))));
 		float yaw = atan2(2.0f * (quat.w() * quat.z() + quat.x() * quat.y()),
 			1.0f - 2.0f * (quat.y() * quat.y() + quat.z() * quat.z()));
 
-		// Convert the floating point angles in radians to a scale from 0 to 18.
+		// Convert the floating point angles in radians to a scale from 0 to 18
 		roll_w = static_cast<int>((roll + (float)M_PI) / (M_PI * 2.0f) * 18);
 		pitch_w = static_cast<int>((pitch + (float)M_PI / 2.0f) / M_PI * 18);
 		yaw_w = static_cast<int>((yaw + (float)M_PI) / (M_PI * 2.0f) * 18);
@@ -82,23 +82,13 @@ public:
 		currentPose = pose;
 
 		if (pose != myo::Pose::unknown && pose != myo::Pose::rest) {
-			// Tell the Myo to stay unlocked until told otherwise. We do that here so you can hold the poses without the
-			// Myo becoming locked.
 			myo->unlock(myo::Myo::unlockHold);
-
-			// Notify the Myo that the pose has resulted in an action, in this case changing
-			// the text on the screen. The Myo will vibrate.
 			myo->notifyUserAction();
-		}
-		else {
-			// Tell the Myo to stay unlocked only for a short period. This allows the Myo to stay unlocked while poses
-			// are being performed, but lock after inactivity.
+		} else {
 			myo->unlock(myo::Myo::unlockTimed);
 		}
 	}
 
-	// onArmSync() is called whenever Myo has recognized a Sync Gesture after someone has put it on their
-	// arm. This lets Myo know which arm it's on and which way it's facing.
 	void onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm, myo::XDirection xDirection, float rotation,
 		myo::WarmupState warmupState) {
 		onArm = true;
@@ -109,20 +99,18 @@ public:
 		onArm = false;
 	}
 
-	// onUnlock() is called whenever Myo has become unlocked, and will start delivering pose events.
+	//these control pose events
 	void onUnlock(myo::Myo* myo, uint64_t timestamp) {
 		isUnlocked = true;
 	}
-
-	// onLock() is called whenever Myo has become locked. No pose events will be sent until the Myo is unlocked again.
 	void onLock(myo::Myo* myo, uint64_t timestamp) {
 		isUnlocked = false;
 	}
 
-    void print() { //prints the current values that were updated by the on...() functions above
+    void print() { 
         cout << '\r' ;
 
-        for (size_t i = 0; i < emgSamples.size(); i++) { // Print out the EMG data.
+        for (size_t i = 0; i < emgSamples.size(); i++) { 
             ostringstream oss;
             oss << static_cast<int>(emgSamples[i]);
             string emgString = oss.str();
@@ -154,25 +142,9 @@ public:
 	myo::Pose currentPose;
 };
 
-//for (int i = 0; i < 100; i++) {
-//
-//	for (int j = 0; j < 7; j++) {
-//		ostringstream oss1;
-//		oss1 << static_cast<int>(sensors[j].fullData->front());
-//		sensors[j].fullData->pop();
-//		string emgString = oss1.str();
-//		fout_filtered << emgString << ",";
-//	}
-//
-//	ostringstream oss1;
-//	oss1 << static_cast<int>(sensors[7].fullData->front());
-//	sensors[7].fullData->pop();
-//	string emgString = oss1.str();
-//	fout_filtered << emgString << endl;
-//}
-
+//creates output files, one with EMG filtering and one without
 void csv_output(ofstream & fout, DataCollector& collector, string gesture_name, EMG_Sensor* sensors, ofstream & fout_filtered) {
-	for (size_t i = 0; i < collector.emgSamples.size(); i++) { // Print out the EMG data.
+	for (size_t i = 0; i < collector.emgSamples.size(); i++) { 
 		ostringstream oss;
 		oss << static_cast<int>(collector.emgSamples[i]);
 		string emgString = oss.str();
