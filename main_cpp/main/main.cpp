@@ -21,6 +21,10 @@
 	#define M_PI 3.14159265358979323846
 #endif
 
+#ifndef NOT_CANS_COMPUTER
+	#define INT_SIZE 4
+#endif
+
 #include <myo/myo.hpp>
 #include "EMG_filtering.h"
 #include "Data.h"
@@ -29,11 +33,7 @@ using namespace std;
 
 class GestureContainer {
 public:
-
-	struct column {
-		queue<string> column_data;
-	};
-
+	queue<int> datapoints[14];
 };
 
 class DataCollector : public myo::DeviceListener {
@@ -75,12 +75,6 @@ public:
 		pitch_w = static_cast<int>((pitch + (float)M_PI / 2.0f) / M_PI * 18);
 		yaw_w = static_cast<int>((yaw + (float)M_PI) / (M_PI * 2.0f) * 18);
 	}
-
-	bool normalized1 = false;
-	bool normalized2 = false;
-	bool normalized3 = false;
-	bool normalized4 = false;
-	int accx0, accy0, accz0;
 
 	void onAccelerometerData(myo::Myo* myo, uint64_t timestamp, const myo::Vector3<float> &accel) {
 		accx = accel.x() * 40;
@@ -159,7 +153,7 @@ public:
 	myo::Pose currentPose;
 };
 
-void csv_output(ofstream & fout, DataCollector& collector, string gesture_name, EMG_Sensor* sensors, ofstream & fout_filtered) {
+void csv_output(ofstream & fout, DataCollector& collector, EMG_Sensor* sensors, ofstream & fout_filtered) {
 	for (size_t i = 0; i < collector.emgSamples.size(); i++) { // Print out the EMG data.
 		ostringstream oss;
 		oss << static_cast<int>(collector.emgSamples[i]);
@@ -179,70 +173,84 @@ void csv_output(ofstream & fout, DataCollector& collector, string gesture_name, 
 	}
 
 	fout_filtered << collector.roll_w << "," << collector.pitch_w << "," << collector.yaw_w << ",";
-	fout_filtered << setprecision(3) << collector.accx << "," << setprecision(3) << collector.accy << "," << setprecision(3) << collector.accz << "," << gesture_name << endl;
+	fout_filtered << setprecision(3) << collector.accx << "," << setprecision(3) << collector.accy << "," << setprecision(3) << collector.accz << endl;
 
 	fout << collector.roll_w << "," << collector.pitch_w << "," << collector.yaw_w << ",";
-	fout << setprecision(3) << collector.accx << "," << setprecision(3) << collector.accy << "," << setprecision(3) << collector.accz << "," << gesture_name << endl;
+	fout << setprecision(3) << collector.accx << "," << setprecision(3) << collector.accy << "," << setprecision(3) << collector.accz << endl;
 }
+
+void csv_output2(DataCollector& collector, EMG_Sensor* sensors, ofstream & fout_filtered) {
+	for (size_t i = 0; i < collector.emgSamples.size(); i++) { // Print out the EMG data.
+		sensors[i].filter(static_cast<int>(collector.emgSamples[i]));
+	}
+
+	for (int j = 0; j < 8; j++) {
+		ostringstream oss1;
+		oss1 << static_cast<int>(sensors[j].fullData->front());
+		sensors[j].fullData->pop();
+		string emgString = oss1.str();
+		fout_filtered << emgString << ",";
+	}
+
+	fout_filtered << collector.roll_w << "," << collector.pitch_w << "," << collector.yaw_w << ",";
+	fout_filtered << setprecision(3) << collector.accx << "," << setprecision(3) << collector.accy << "," << setprecision(3) << collector.accz << endl;
+
+}
+
 
 int main(int argc, char** argv) {
 try {
     myo::Hub hub("com.example.emg-data-sample");
     cout << "Attempting to find a Myo..." << endl;
-
     myo::Myo* myo1 = hub.waitForMyo(10000);
     if (!myo1) { throw runtime_error("Unable to find a Myo 1!"); }
-
     cout << "Connected to a Myo armband (1) !" << endl << endl;
     myo1->setStreamEmg(myo::Myo::streamEmgEnabled); myo1->setStreamEmg(myo::Myo::streamEmgDisabled); myo1->setStreamEmg(myo::Myo::streamEmgEnabled); //enable EMG streaming
-
     DataCollector collector1;
     hub.addListener(&collector1);
-	
-	ifstream fin("output_count.txt");
-	if (!fin) {	throw runtime_error("Failed to open output counter file!"); }
 
-	int output_count;
-	fin >> output_count;
-	fin.close();
-
-	ofstream finEdit("output_count.txt");
-	finEdit << output_count + 1;
-	finEdit.close();
-	string output_first_name = "myo_output";
-	string filtered_first_name = "myo_filtered_output";
-	string output_name = output_first_name + to_string(output_count) + ".csv";
-	string filtered_name = filtered_first_name + to_string(output_count) + ".csv";
-
-
-	ofstream fout(output_name);
+	ofstream fout("Trigger.txt");
 	if (!fout) { throw runtime_error("Failed to create output text file!"); }
-
-	ofstream fout_filtered(filtered_name);
-	if (!fout_filtered) { throw runtime_error("Failed to create filtered output text file!"); }
-
-	string gesture_name;
-	cout << "Which gesture will be performed?" << endl;
-	cin >> gesture_name;
-
+	
 	EMG_Sensor sensors[8];
-	int counter = 0;
-    while (counter < 100) {
+
+	int counter_trigger = 0;
+
+    while (true) {
+		myo1->vibrate(myo::Myo::vibrationShort);
+		//string name = "Data" + to_string(counter_trigger) + ".csv";
+		string name = "Data.csv";
+		ofstream fout2(name);
+		if (!fout2) { throw runtime_error("Failed to create filtered output text file!"); }
+
 		myo1->unlock(myo::Myo::unlockHold);
 		hub.run(1000/25); 
-        collector1.print();
-		cout << "\r" << endl << counter;
-		cout << flush;
-		csv_output(fout, collector1, gesture_name, sensors, fout_filtered);
-		counter++;
+
+		int cur_pitch = collector1.pitch_w;
+		int cur_yaw = collector1.yaw_w;
+		int cur_roll = collector1.roll_w;
+
+		while ((abs(collector1.pitch_w - cur_pitch) < 2 || abs(collector1.pitch_w - cur_pitch) > 16)
+			&& (abs(collector1.yaw_w - cur_yaw) < 2 || abs(collector1.yaw_w - cur_yaw) > 16)
+			&& (abs(collector1.roll_w - cur_roll) < 1 || abs(collector1.roll_w - cur_roll) > 17)) {
+			hub.run(1000 / 25);
+		}
+
+		for (int i = 0; i < 100; i++) {
+			hub.run(1000 / 25);
+			csv_output2(collector1, sensors, fout2);
+		}
+
+		fout2 << "0,0,0,0,0,0,0,0,0,0,0,0,0,0,SPACE" << endl;
+		fout2.close();
+		counter_trigger++;
+		cout << to_string(counter_trigger);
+		fout << to_string(counter_trigger);
+
     }
 
-	fout << "0,0,0,0,0,0,0,0,0,0,0,0,0,0,SPACE" << endl;
-	fout_filtered << "0,0,0,0,0,0,0,0,0,0,0,0,0,0,SPACE" << endl;
-	cout << endl << "Recording ended. Data stored in " << output_name;
 	fout.close();
-
-	fout_filtered.close();
+	
 	string ender;
 	cin >> ender;
 
