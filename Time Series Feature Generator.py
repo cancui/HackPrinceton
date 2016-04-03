@@ -10,34 +10,37 @@
 def azureml_main(dataframe1 = None, dataframe2 = None):
     # import required packages
     import pandas as pd
-    
-    columnLabel = ['E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8', 'A1', 'A2', 'A3', 'Word']
-    df = dataframe1
-    df.columns = columnLabel
-    
+        
+    #List of the 
     rowSep = rowSeparation(df)
-    
+        
     Dict = {}
     for row in range(0,len(rowSep)-1):
         rowTemp = []
         for col in xrange(11):
             #Creates a temp list out of the column vector
-            tempList = (df.iloc[(rowSep[row]+1):rowSep[row+1],col]).tolist()
+            rowStart = rowSep[row]+1
+            rowEnd = rowSep[row+1]
+            tempList = (df.iloc[rowStart:rowEnd,col]).tolist()
             rowTemp.append(callFeatures(tempList))
         #Add the word being gestured as the last column entry
-        
         rowTemp.append((df.iloc[(rowSep[row]+1):(rowSep[row]+2),11]).tolist())
         dictNum = '0' + str(row)
         DictNum = dictNum[-2:]        
         Dict['row ' + DictNum] = rowTemp
     
     output = pd.DataFrame(Dict)
+    #output.columns = columnLabel
     return [output]
-
+    
 import numpy as np
 
 #Global variable for the sampling rate in seconds
 sampleRate = 0.04
+
+#Global variable for the number of numerical data channels in the
+#incoming CSV file, which will become vertical columns
+numChannels = 4
 
 
 def avAbsDiff (columnVector):
@@ -123,8 +126,9 @@ def rowSeparation(dataFile):
     nullRows = [-1]
     #Last column is reserved for the word that is being signed
     count = 0
-    for word in dataFile["Word"]:
-        if word == 'NULL':
+    LstWords = (dataFile.iloc[:,11]).tolist()
+    for word in LstWords:
+        if word == 'SPACE':
             nullRows.append(count)
         count+=1
     return nullRows
@@ -134,13 +138,14 @@ import csv
 import string
 import pandas as pd
 
-with open("/Users/jeremymalloch/Desktop/myo_output1.csv", "r") as f:
+with open("/Users/jeremymalloch/Desktop/Myo_OutputBasic.csv", "r") as f:
     data1 = [row for row in csv.reader(f)]
     TestInput = {}
-    for x in range(11):
+    for x in range(numChannels):
         stringNum = '0' + str(x)
         StringNum = stringNum[-2:]
-        TestInput['row ' + StringNum] = [float(row[x]) for row in data1]
-    #TestInput['Word'] = [string(row[11]) for row in data1]
+        TestInput['Row ' + StringNum] = [float(row[x]) for row in data1]
+    TestInput['_Word'] = [row[11] for row in data1]
     TstFile = pd.DataFrame(TestInput)
-    
+
+output = azureml_main(dataframe1 = TstFile)
