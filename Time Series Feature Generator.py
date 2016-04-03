@@ -47,7 +47,7 @@ sampleRate = 0.04
 
 #Global variable for the number of numerical data channels in the
 #incoming CSV file, which will become vertical columns
-numChannels = 4
+numChannels = 14
 
 
 def avAbsDiff (columnVector):
@@ -123,10 +123,10 @@ def callFeatures (columnVector):
 def rowSeparation(dataFile):
     '''
     dataFile should be a pandas dataFrame
-    Pass the overall file dataFile in, parse the rightmost column that contains the 
-    words being signed, looking for a 'NULL' string signifying the separation
-    between two different word gestures.  Returns a list of all of the row
-    indexes for which this is true to aid in parsing the dataframe file.
+    Pass the overall file dataFile in, parse the rightmost column that contains 
+    the words being signed, looking for a 'NULL' string signifying the 
+    separation between two different word gestures.  Returns a list of all of 
+    the row indexes for which this is true to aid in parsing the dataframe file.
     '''
     #List of the row indexes of null rows, used to separate two different
     #gestures
@@ -141,11 +141,16 @@ def rowSeparation(dataFile):
     return nullRows
     
 
+
+
+
+#Importing CSV file and turning into dataFile from pandas, strictly for local
+#testing. DO NOT COPY TO AZURE
+
 import csv
-import string
 import pandas as pd
 
-with open("/Users/jeremymalloch/Desktop/Myo_OutputBasic.csv", "r") as f:
+with open("/Users/jeremymalloch/Desktop/HackPrincetonData/myo_output6.csv", "r") as f:
     data1 = [row for row in csv.reader(f)]
     TestInput = {}
     for x in range(numChannels):
