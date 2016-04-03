@@ -21,6 +21,8 @@
 #endif
 
 #include <myo/myo.hpp>
+#include "EMG_filtering.h"
+#include "Data.h"
 
 using namespace std;
 
@@ -62,6 +64,18 @@ public:
 		roll_w = static_cast<int>((roll + (float)M_PI) / (M_PI * 2.0f) * 18);
 		pitch_w = static_cast<int>((pitch + (float)M_PI / 2.0f) / M_PI * 18);
 		yaw_w = static_cast<int>((yaw + (float)M_PI) / (M_PI * 2.0f) * 18);
+	}
+
+	bool normalized1 = false;
+	bool normalized2 = false;
+	bool normalized3 = false;
+	bool normalized4 = false;
+	int accx0, accy0, accz0;
+
+	void onAccelerometerData(myo::Myo* myo, uint64_t timestamp, const myo::Vector3<float> &accel) {
+		accx = accel.x() * 40;
+		accy = accel.y() * 40;
+		accz = accel.z() * 40;
 	}
 
 	void onPose(myo::Myo* myo, uint64_t timestamp, myo::Pose pose) {
@@ -136,34 +150,51 @@ public:
 	myo::Arm whichArm;
 	bool isUnlocked;
 	int roll_w, pitch_w, yaw_w;
+	double accx, accy, accz;
 	myo::Pose currentPose;
 };
 
-void printToFile(ofstream & fout, array<int8_t, 8> emgSamples) {
-	for (size_t i = 0; i < emgSamples.size(); i++) { // Print out the EMG data.
-		ostringstream oss;
-		oss << static_cast<int>(emgSamples[i]);
-		string emgString = oss.str();
+//for (int i = 0; i < 100; i++) {
+//
+//	for (int j = 0; j < 7; j++) {
+//		ostringstream oss1;
+//		oss1 << static_cast<int>(sensors[j].fullData->front());
+//		sensors[j].fullData->pop();
+//		string emgString = oss1.str();
+//		fout_filtered << emgString << ",";
+//	}
+//
+//	ostringstream oss1;
+//	oss1 << static_cast<int>(sensors[7].fullData->front());
+//	sensors[7].fullData->pop();
+//	string emgString = oss1.str();
+//	fout_filtered << emgString << endl;
+//}
 
-		fout << '[' << emgString << string(4 - emgString.size(), ' ') << ']';
-	}
-	fout << endl;
-}
-
-void csv_output(ofstream & fout, DataCollector& collector, string gesture_name) {
+void csv_output(ofstream & fout, DataCollector& collector, string gesture_name, EMG_Sensor* sensors, ofstream & fout_filtered) {
 	for (size_t i = 0; i < collector.emgSamples.size(); i++) { // Print out the EMG data.
 		ostringstream oss;
 		oss << static_cast<int>(collector.emgSamples[i]);
 		string emgString = oss.str();
 
-		fout << emgString << ", ";
+		fout << emgString << ",";
+
+		sensors[i].filter(static_cast<int>(collector.emgSamples[i]));
 	}
 	
-	fout << collector.roll_w << ", " << collector.pitch_w << ", " << collector.yaw_w << ", " << gesture_name << " " << endl;
-	/*
-	fout << '[' << (collector.whichArm == myo::armLeft ? "L" : "R") << "], ";
-	fout << "r ";
-	fout << endl; */
+	for (int j = 0; j < 8; j++) {
+		ostringstream oss1;
+		oss1 << static_cast<int>(sensors[j].fullData->front());
+		sensors[j].fullData->pop();
+		string emgString = oss1.str();
+		fout_filtered << emgString << ",";
+	}
+
+	fout_filtered << collector.roll_w << "," << collector.pitch_w << "," << collector.yaw_w << ",";
+	fout_filtered << setprecision(3) << collector.accx << "," << setprecision(3) << collector.accy << "," << setprecision(3) << collector.accz << "," << gesture_name << endl;
+
+	fout << collector.roll_w << "," << collector.pitch_w << "," << collector.yaw_w << ",";
+	fout << setprecision(3) << collector.accx << "," << setprecision(3) << collector.accy << "," << setprecision(3) << collector.accz << "," << gesture_name << endl;
 }
 
 int main(int argc, char** argv) {
@@ -172,9 +203,7 @@ try {
     cout << "Attempting to find a Myo..." << endl;
 
     myo::Myo* myo1 = hub.waitForMyo(10000);
-    if (!myo1) { //check if failed
-        throw runtime_error("Unable to find a Myo 1!");
-    }
+    if (!myo1) { throw runtime_error("Unable to find a Myo 1!"); }
 
     cout << "Connected to a Myo armband (1) !" << endl << endl;
     myo1->setStreamEmg(myo::Myo::streamEmgEnabled); myo1->setStreamEmg(myo::Myo::streamEmgDisabled); myo1->setStreamEmg(myo::Myo::streamEmgEnabled); //enable EMG streaming
@@ -183,42 +212,51 @@ try {
     hub.addListener(&collector1);
 	
 	ifstream fin("output_count.txt");
-	if (!fin) {
-		throw runtime_error("Failed to open output counter file!");
-	}
+	if (!fin) {	throw runtime_error("Failed to open output counter file!"); }
+
 	int output_count;
 	fin >> output_count;
 	fin.close();
+
 	ofstream finEdit("output_count.txt");
 	finEdit << output_count + 1;
 	finEdit.close();
 	string output_first_name = "myo_output";
+	string filtered_first_name = "myo_filtered_output";
 	string output_name = output_first_name + to_string(output_count) + ".csv";
+	string filtered_name = filtered_first_name + to_string(output_count) + ".csv";
+
+
 	ofstream fout(output_name);
-	if (!fout) {
-		throw runtime_error("Failed to create output text file!");
-	}
+	if (!fout) { throw runtime_error("Failed to create output text file!"); }
+
+	ofstream fout_filtered(filtered_name);
+	if (!fout_filtered) { throw runtime_error("Failed to create filtered output text file!"); }
 
 	string gesture_name;
 	cout << "Which gesture will be performed?" << endl;
 	cin >> gesture_name;
 
+	EMG_Sensor sensors[8];
 	int counter = 0;
     while (counter < 100) {
 		myo1->unlock(myo::Myo::unlockHold);
 		hub.run(1000/25); 
         collector1.print();
-		cout << "\r" << counter;
+		cout << "\r" << endl << counter;
 		cout << flush;
-		//printToFile(fout, collector1.emgSamples);
-		csv_output(fout, collector1, gesture_name);
+		csv_output(fout, collector1, gesture_name, sensors, fout_filtered);
 		counter++;
     }
 
-	fout << "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, SPACE" << endl;
+	fout << "0,0,0,0,0,0,0,0,0,0,0,0,0,0,SPACE" << endl;
+	fout_filtered << "0,0,0,0,0,0,0,0,0,0,0,0,0,0,SPACE" << endl;
 	cout << endl << "Recording ended. Data stored in " << output_name;
 	fout.close();
-	cin.ignore();
+
+	fout_filtered.close();
+	string ender;
+	cin >> ender;
 
 } catch (const exception& e) {
         cerr << "Error: " << e.what() << endl;

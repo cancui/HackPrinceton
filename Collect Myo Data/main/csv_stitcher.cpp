@@ -30,7 +30,7 @@ int main() {
 		for (int j = 0; j < 101; j++) {
 			string incoming_row = " ";
 
-			for (int k = 0; k < 11; k++) {
+			for (int k = 0; k < 14; k++) {
 				string newest;
 				fin >> newest;
 				incoming_row += (newest + " ");
