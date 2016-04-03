@@ -31,8 +31,8 @@ def azureml_main(dataframe1 = None, dataframe2 = None):
                 rowTemp.append(x)
         #Add the word being gestured as the last column entry
         rowTemp.append((df.iloc[(rowSep[row]+1):(rowSep[row]+2),numChannels]).tolist()[0])
-        dictNum = '0' + str(row)
-        DictNum = dictNum[-2:]        
+        dictNum = '00' + str(row)
+        DictNum = dictNum[-3:]        
         Dict['row ' + DictNum] = rowTemp
     
     outputPD = pd.DataFrame(Dict)
@@ -159,7 +159,7 @@ def rowSeparation(dataFile):
 import csv
 import pandas as pd
 
-with open("/Users/jeremymalloch/Desktop/HackPrincetonData/myo_output6.csv", "r") as f:
+with open("/Users/jeremymalloch/Desktop/HackPrincetonData/Training Files/MergedCSVnoHeader.csv", "r") as f:
     data1 = [row for row in csv.reader(f)]
     TestInput = {}
     for x in range(numChannels):
