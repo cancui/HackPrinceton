@@ -15,6 +15,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <queue>
 
 #ifndef M_PI
 	#define M_PI 3.14159265358979323846
@@ -25,6 +26,15 @@
 #include "Data.h"
 
 using namespace std;
+
+class GestureContainer {
+public:
+
+	struct column {
+		queue<string> column_data;
+	};
+
+};
 
 class DataCollector : public myo::DeviceListener {
 public:
@@ -97,10 +107,7 @@ public:
 		}
 	}
 
-	// onArmSync() is called whenever Myo has recognized a Sync Gesture after someone has put it on their
-	// arm. This lets Myo know which arm it's on and which way it's facing.
-	void onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm, myo::XDirection xDirection, float rotation,
-		myo::WarmupState warmupState) {
+	void onArmSync(myo::Myo* myo, uint64_t timestamp, myo::Arm arm, myo::XDirection xDirection, float rotation, myo::WarmupState warmupState) {
 		onArm = true;
 		whichArm = arm;
 	}
@@ -109,12 +116,10 @@ public:
 		onArm = false;
 	}
 
-	// onUnlock() is called whenever Myo has become unlocked, and will start delivering pose events.
 	void onUnlock(myo::Myo* myo, uint64_t timestamp) {
 		isUnlocked = true;
 	}
 
-	// onLock() is called whenever Myo has become locked. No pose events will be sent until the Myo is unlocked again.
 	void onLock(myo::Myo* myo, uint64_t timestamp) {
 		isUnlocked = false;
 	}
