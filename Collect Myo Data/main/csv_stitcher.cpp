@@ -24,22 +24,21 @@ int main() {
 	ofstream fout(final_name);
 	
 	for (int i = first; i <= last; i++) {
-		string in_name = "myo_output" + to_string(i) + ".csv";
+		string in_name = "myo_filtered_output" + to_string(i) + ".csv";
 		ifstream fin(in_name);
 
 		for (int j = 0; j < 101; j++) {
-			string incoming_row = " ";
+			string incoming_row;
 
+			/*
 			for (int k = 0; k < 14; k++) {
 				string newest;
 				fin >> newest;
 				incoming_row += (newest + " ");
-				cout << incoming_row << endl;
-			}
-			string newest1;
-			fin >> newest1;
+				cout << incoming_row << endl; */
 
-			incoming_row += (newest1);
+			fin >> incoming_row;
+			
 			fout << incoming_row << endl;
 		}
 		fin.close();
