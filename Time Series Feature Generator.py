@@ -42,12 +42,13 @@ def azureml_main(dataframe1 = None, dataframe2 = None):
     outputNPT = np.transpose(outputNP)
     #Populate a list with strings labeling the columns
     columnList = []
-    for x in range(numChannels):
+    for x in range(numChannels*16):
         stringNum = '0' + str(x)
         StringNum = stringNum[-2:]
         columnList.append('Row ' + StringNum)
     columnList.append('Word')
     outputPD = pd.DataFrame(outputNPT)
+    outputPD.columns = columnList
     #Perform a transpose to make the data from each gesture a row
     #output.transpose()
     return [outputPD]
