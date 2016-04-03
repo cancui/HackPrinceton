@@ -10,7 +10,7 @@
 def azureml_main(dataframe1 = None, dataframe2 = None):
     # import required packages
     import pandas as pd
-    import numpy as np
+    from sklearn import preprocessing
        
     #Rename dataframe1 as df to shorten multiple calls to it
     #in this function
@@ -140,10 +140,6 @@ def rowSeparation(dataFile):
         count+=1
     return nullRows
     
-
-
-
-
 #Importing CSV file and turning into dataFile from pandas, strictly for local
 #testing. DO NOT COPY TO AZURE
 
