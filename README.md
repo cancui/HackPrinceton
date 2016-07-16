@@ -16,5 +16,6 @@ The recognition module works in the same was as the training module up to the po
 
 After several hundred training samples, the software could recognize 4 distinct sign language gestures with 80% accuracy. 
 
+---------------------------------
 
 #####Also, shoutout Steph for being a great host at Princeton!
