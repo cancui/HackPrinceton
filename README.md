@@ -22,4 +22,4 @@ After two hundred training samples, the software could recognize 4 distinct sign
 
 ---------------------------------
 
-#####Lastly, we owe a shoutout to [Steph](http://i.imgur.com/1O9SZJp.jpg) for being a great host at Princeton!
+#####Lastly, we owe a shoutout to Steph for being a great host at Princeton!
